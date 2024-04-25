@@ -1,0 +1,102 @@
+create database BlogDB
+use BlogDB
+
+create table Categories 
+( 
+Id int primary key identity,
+[Name] nvarchar(60) not null UNIQUE
+)
+
+create table Tags 
+( 
+Id int primary key identity,
+[Name] nvarchar(60) not null UNIQUE,
+)
+
+create table Users 
+( 
+Id int primary key identity,
+UserName nvarchar(60) not null UNIQUE,
+FullName nvarchar(60) not null UNIQUE,
+Age int Check(Age>0 and Age<150)
+)
+
+create table Blogs 
+(
+Id int primary key identity,
+Title nvarchar(50) not null,
+[Description] nvarchar(100) not null,
+UserId int foreign key references Users(Id),
+CategorieId int foreign key references Categories(Id),
+)
+
+create table BlogsTags
+(
+Id int primary key identity,
+BlogId int foreign key references Blogs(Id),
+TagId int foreign key references Tags(Id)
+)
+
+create table Comments
+(
+Id int primary key identity,
+Content nvarchar(250) not null,
+UserId int foreign key references Users(Id),
+BlogId int foreign key references Blogs(Id)
+)
+
+insert into Categories values ('Health'), ('Sport'), ('Art')
+insert into Tags values ('Painting'), ('Fitness'), ('Tennis'), ('Basketball')
+insert into Users (UserName, FullName, Age) values ('user1', 'Fatima Aliyeva', 20), ('user2', 'Sevgi Aliyeva', 20), ('user3', 'Fidan Alizade', 18)
+insert into Blogs (Title, [Description], UserId, CategorieId) values ('Healthy Life', 'Healthy eating', 2, 1), ('Improved mood', 'Sport reduces stress and depression', 3, 2), ('Mindful creativity', 'Art makes us happier', 1, 3)
+insert into Comments (Content, UserId, BlogId) values ('Creativity', 3, 1), ('Sport improves your mood', 2, 2)
+
+
+
+create view BlogsUsers as
+select Blogs.Title,Users.UserName, Users.FullName 
+From Blogs 
+Join Users on Blogs.Id=Users.Id
+
+select * from BlogsUsers
+
+create view BlogsCategories as
+select Blogs.Title,Categories.[Name]
+From Blogs 
+Join Categories on Blogs.Id=Categories.Id
+
+select * from BlogsCategories
+
+create procedure usp_UserComment @userId int
+as
+select Comments.Content from Comments
+where Comments.UserId = @userId
+
+exec usp_UserComment @userId=3
+
+
+create procedure usp_UserBlog @userId int
+as
+select Blogs.Title from Blogs
+where Blogs.UserId = @userId
+
+exec usp_UserBlog @userId=1
+
+
+create function GetBlogsCount (@categoryId int)
+returns int
+as
+begin
+Declare @count int
+select @count = Count(*) from Blogs where Blogs.CategorieId = @categoryId
+return @count
+end
+
+select dbo.GetBlogsCount(3)
+
+create function GetBlogsTable (@userId int)
+returns Table
+as
+return select * from Blogs where Blogs.UserId = @userId
+
+select * from GetBlogsTable(3)
