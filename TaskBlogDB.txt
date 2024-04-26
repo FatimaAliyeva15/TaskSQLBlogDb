@@ -56,14 +56,14 @@ insert into Comments (Content, UserId, BlogId) values ('Creativity', 3, 1), ('Sp
 create view BlogsUsers as
 select Blogs.Title,Users.UserName, Users.FullName 
 From Blogs 
-Join Users on Blogs.Id=Users.Id
+Join Users on Blogs.UserId=Users.Id
 
 select * from BlogsUsers
 
 create view BlogsCategories as
 select Blogs.Title,Categories.[Name]
 From Blogs 
-Join Categories on Blogs.Id=Categories.Id
+Join Categories on Blogs.CategorieId=Categories.Id
 
 select * from BlogsCategories
 
